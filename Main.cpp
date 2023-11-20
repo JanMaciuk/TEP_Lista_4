@@ -2,17 +2,33 @@
 #include "Interface.h"
 #include "Tree.h"
 
-int main()
+const std::string chooseType = "Choose type of tree:\n1. Integer\n2. Double\n3. String\n any other input to leave the program ";
+
+void runInt()
 {
-    std::cout << "Hello World!\n";
     bool running = true;
-    CTree *tree = NULL;
+    CTree<int>* tree = NULL;
     while (running)
     {
-		vector<string> command = interface::getUserInput();
-		running = interface::handleCommand(command, &tree);
-        
-	}
-    
-    return 0;
+        vector<string> command = interface::getUserInput();
+        running = interface::handleCommand(command, &tree);
+    }
+
+
 }
+void runDouble() {} //TODO
+void runString() {} //TODO
+
+int main()
+{
+    std::cout << chooseType << std::endl;
+    string consoleInput;
+    std::getline(cin, consoleInput);
+	if (consoleInput == "1") { runInt(); }
+	else if (consoleInput == "2"){ runDouble(); }
+	else if (consoleInput == "3") { runString();}
+	
+	return 0;
+}
+
+

@@ -129,7 +129,6 @@
   <ItemGroup>
     <ClCompile Include="..\TEP_List_3\Interface.cpp" />
     <ClCompile Include="..\TEP_List_3\Main.cpp" />
-    <ClCompile Include="..\TEP_List_3\Tree.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\TEP_List_3\Interface.h" />

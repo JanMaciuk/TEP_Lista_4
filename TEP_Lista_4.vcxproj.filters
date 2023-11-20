@@ -21,9 +21,6 @@
     <ClCompile Include="..\TEP_List_3\Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\TEP_List_3\Tree.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\TEP_List_3\Tree.h">

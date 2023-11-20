@@ -1,10 +1,8 @@
 #include "Tree.h"
-#include "Interface.h"
+#include <algorithm>
+#include "interface.h"
 
 //CTree:
-
-
-
 
 
 void CTree::printExpression() const
@@ -13,34 +11,6 @@ void CTree::printExpression() const
 	interface::print(emptyString); // newline
 }
 
-std::vector<std::string> CTree::getVars() const
-{
-	std::vector<std::string> accumulator;
-	std::vector<std::string> vars = root->getVars(&accumulator);
-	return vars;
-
-}
-
-double CTree::calculate(std::vector<double> values) const
-{
-	std::vector<std::string> accumulator;
-	std::vector<std::string> vars = root->getVars(&accumulator);
-	return CNode::calculate(root, vars, values);
-}
-
-std::vector<std::string> CTree::getExpression() const
-{
-	std::vector<std::string> accumulator;
-	std::vector<std::string> expression = root->inOrderWalk(&accumulator);
-	return expression;
-}
-
-
-
-
-
-
-CTree::~CTree() { root->deleteTree(); }
 
 
 
@@ -55,19 +25,6 @@ void CNode::inOrderWalkPrint() const
 	children[1]->inOrderWalkPrint();
 
 }
-
-
-
-
-
-
-
-
-std::string CNode::errMsg = emptyString;
-
-
-
-
 
 
 

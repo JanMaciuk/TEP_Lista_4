@@ -9,6 +9,13 @@ vector<string> interface::getUserInput() {
 	
 }
 
+void interface::print(const vector<string> input) 
+{
+	for (int i = 0; i < input.size(); i++) { cout << input[i] << space; }
+	cout << endl;
+}
+string CNode::errMsg = emptyString;
+
 vector<string> interface::splitBySpace(const string& input) {
 	vector<string> result;
 	string currentWord;
@@ -26,7 +33,7 @@ vector<string> interface::splitBySpace(const string& input) {
 	return result;
 }
 
-bool interface::handleCommand(const vector<string>& command, CTree** tree) 
+bool interface::handleCommand(const vector<string>& command, CTree<int>** tree) 
 {
 	//call an appropriate method based on the command
 	//return false if exiting the program
@@ -47,10 +54,10 @@ bool interface::handleCommand(const vector<string>& command, CTree** tree)
 		{ 
 			delete *tree; 
 		}
-		*tree = new CTree(command);
+		*tree = new CTree<int>(command);
 		interface::print((*tree)->clearErrors());
 		interface::print(notification_printingExpression);
-		(*tree)->printExpression();
+		print((*tree)->getExpression());
 		return true; 
 	}
 
@@ -77,7 +84,7 @@ bool interface::handleCommand(const vector<string>& command, CTree** tree)
 		else 
 		{ 
 			interface::print(notification_printingTree);
-			(*tree)->printExpression(); 
+			print((*tree)->getExpression()); 
 		}
 		return true; 
 	} 
@@ -101,10 +108,10 @@ bool interface::handleCommand(const vector<string>& command, CTree** tree)
 	else if (commandName == command_addTree) 
 	{ 
 		if (!treeIsInitialized(tree)) { interface::print(notification_noTree); return true; }
-		(**tree) = (**tree) + CTree(command);
+		(**tree) = (**tree) + CTree<int>(command);
 		interface::print((*tree)->clearErrors());
 		interface::print(notification_printingExpression);
-		(*tree)->printExpression();
+		print((*tree)->getExpression());
 		return true; 
 	}
 
@@ -112,7 +119,7 @@ bool interface::handleCommand(const vector<string>& command, CTree** tree)
 	
 }
 
-bool interface::treeIsInitialized(CTree** tree)
+bool interface::treeIsInitialized(CTree<int>** tree)
 {
 	if (*tree == NULL || !(*tree)->isInitialized()) { return false; }
 	else { return true; }

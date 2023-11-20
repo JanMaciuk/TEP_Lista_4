@@ -1,9 +1,27 @@
-#pragma once
+#ifndef treeDef
+#define treeDef
 #include <string>
 #include <vector>
-#include <algorithm>
-#include <iostream>
 using namespace std;
+
+const vector<string> operations2children = { "+", "-", "*", "/"};
+const vector<string> operations1child = { "sin", "cos" };
+const int multiplicationIndex = 2;
+const int divisionIndex = 3;
+const int IDconstant = 3;
+const int IDvariable = 4;
+const char minDigit = '0';
+const char maxDigit = '9';
+const char minSmalLetter = 'a';
+const char maxSmallLetter = 'z';
+const char minCapitalLetter = 'A';
+const char maxCapitalLetter = 'Z';
+const string defaultNodeValue = "1";
+const string emptyString = "";
+const string endLine = "\n";
+const string space = " ";
+const int baseNumber = 10;
+const int maxChildrenCount = 2;
 
 const char char_space = ' ';
 const string command_enterTree = "enter";
@@ -24,25 +42,6 @@ const string notification_invalidVariableValue = " is not a valid value for a va
 const string notification_zeroNotAllowed = "entered numbers must be positive, zero is not supported, replacing with default value: ";
 const string notification_overflow = "Integer overflow occured, use smaller values and consider result invalid, replaced by default: ";
 const string defaultVarName = "x";
-
-const vector<string> operations2children = { "+", "-", "*", "/"};
-const vector<string> operations1child = { "sin", "cos" };
-const int multiplicationIndex = 2;
-const int divisionIndex = 3;
-const int IDconstant = 3;
-const int IDvariable = 4;
-const char minDigit = '0';
-const char maxDigit = '9';
-const char minSmalLetter = 'a';
-const char maxSmallLetter = 'z';
-const char minCapitalLetter = 'A';
-const char maxCapitalLetter = 'Z';
-const string defaultNodeValue = "1";
-const string emptyString = "";
-const string endLine = "\n";
-const string space = " ";
-const int baseNumber = 10;
-const int maxChildrenCount = 2;
 
 
 class CNode 
@@ -91,8 +90,8 @@ private:
 		}
 		return true;
 	};
-
-	static string validateVariableName(const string value)	// turn string into a valid variable name
+	
+	static string validateVariableName(const string value)		// turn string into a valid variable name
 	{
 		// turn string into a valid variable name, requirements to be valid:
 		// cannot be empty
@@ -174,20 +173,19 @@ public:
 
 
 	};
-
-	vector<string> inOrderWalk(vector<string>* accumulator) const  // return expression used to create the tree
+	vector<string> inOrderWalk(vector<string>* accumulator) const
 	{
 		if (this == NULL) { return *accumulator; }
 		accumulator->push_back(value);
 		children[0]->inOrderWalk(accumulator);
 		children[1]->inOrderWalk(accumulator);
 		return *accumulator;
-	};
-
-	vector<string> getVars(vector<string> *accumulator) const		// return expression used to create the tree
+	}
+	
+	vector<string> getVars(vector<string>* accumulator) const 		// return expression used to create the tree
 	{
 		if (this == NULL) { return *accumulator; }
-		if ((this->type == IDvariable) && (std::find((*accumulator).begin(), (*accumulator).end(), (this->value)) == (*accumulator).end()))
+		if ((this->type == IDvariable) && (find((*accumulator).begin(), (*accumulator).end(), (this->value)) == (*accumulator).end()))
 		{ // if node is a variable and is not in the accumulator, add it
 			accumulator->push_back(this->value);
 		} // then walk throught the rest of the tree
@@ -214,7 +212,7 @@ public:
 
 		else if (node->type == IDvariable) // if its a variable, find its value in values vector
 		{
-			int index = std::find(vars.begin(), vars.end(), node->value) - vars.begin(); // variable must be in the vars vector, so index will be valid (length is checked before)
+			int index = find(vars.begin(), vars.end(), node->value) - vars.begin(); // variable must be in the vars vector, so index will be valid (length is checked before)
 			return values[index];
 		}
 
@@ -259,7 +257,7 @@ public:
 
 	void inOrderWalkPrint() const;				//Print expression used to create the tree 
 	
-	void deleteTree()						// delete all children and itself
+	void deleteTree() // delete the called node and all its descendants
 	{
 		if (this == NULL) { return; }
 		for (int i = 0; i < maxChildrenCount; i++)
@@ -267,48 +265,33 @@ public:
 			children[i]->deleteTree();
 		}
 		delete this;
-	};
-
-	static void logError(string msg)		// add error message
+	}
+	
+	static void logError(const string message)
 	{
-		errMsg += msg + endLine;
+		errMsg += message + endLine;
 	};
-
-	static void logErrorSpace(string msg) // add error message terminated with a space instead of a newline
+	static void logErrorSpace(const string message)
 	{
-		errMsg += msg + space;
+		errMsg += message + space;
 	};
-
-	static string getErrors(bool clear)	// return all error messages and clear them if flag is set
+	string getErrors(bool clear)
 	{
-		std::string result = errMsg;
+		string result = errMsg;
 		if (clear) errMsg = emptyString;
 		return result;
 	};
-
 };
 
 
-class CTree 
+template< typename T > class CTree
 {
 
 private:
 	CNode* root;
 	
 public:
-	CTree()													//Default constructor - empty tree
-	{
-		root = NULL;
-	}
-	CTree(const CTree& otherInstance)							//Copy constructor
-	{
-		std::vector<std::string> expression = otherInstance.getExpression();
-		expression.insert(expression.begin(), command_enterTree);
-		int index = 1;
-		root = new CNode(expression, NULL, &index);
-		// No need to check for leftovers, original tree must be valid
-	};
-	CTree(const vector<string> expression)			//Constructor from a vector of strings 
+	CTree(const vector<string> expression)
 	{
 		int index = 1;
 		root = new CNode(expression, NULL, &index);
@@ -323,18 +306,35 @@ public:
 			root->logError(emptyString); // newline
 		}
 	};
-	void operator=(const CTree& otherInstance)					//Set current tree to a copy of another tree
+
+	CTree(const CTree& otherInstance) // copy constructor
+	{
+		vector<string> expression = otherInstance.getExpression();
+		expression.insert(expression.begin(), command_enterTree);
+		int index = 1;
+		root = new CNode(expression, NULL, &index);
+		// No need to check for leftovers, original tree must be valid
+	};
+
+	CTree() // default constructor
+	{
+		root = NULL;
+	};
+
+
+	void operator=(const CTree& otherInstance)
 	{
 		// set current tree to a copy of another tree
 		// if current tree is not empty, delete it
 		if (this->root != NULL) { this->root->deleteTree(); }
 		// create a new tree with the same expression as the other tree
-		std::vector<std::string> expression = otherInstance.getExpression();
+		vector<string> expression = otherInstance.getExpression();
 		expression.insert(expression.begin(), command_enterTree);
 		int index = 1;
 		this->root = new CNode(expression, NULL, &index);
 	};
-	CTree operator+(const CTree& otherInstance) const			//Return copy, result of adding another tree to current tree
+
+	CTree operator+(const CTree& otherInstance) const
 	{
 		// join two trees using operator+
 		// if both trees are empty, return empty tree
@@ -349,8 +349,8 @@ public:
 			// remove last element from the first expression (it is a leaf)
 			// add the second expression to the first one
 			// create a new tree from the new expression
-			std::vector<std::string> thisExpression = this->getExpression();
-			std::vector<std::string> otherExpression = otherInstance.getExpression();
+			vector<string> thisExpression = this->getExpression();
+			vector<string> otherExpression = otherInstance.getExpression();
 			thisExpression.pop_back();
 			thisExpression.insert(thisExpression.begin(), command_enterTree); // add first placeholder to expression
 			for (int i = 0; i < otherExpression.size(); i++)
@@ -364,23 +364,39 @@ public:
 	};
 
 	void printExpression() const;								//Print expression used to create the tree
-	
-	string getErrors() const								//Return all errors generated by nodes
-	{
+	string getErrors() const {
 		return root->getErrors(false);
 	};
-	string clearErrors()									//Clear all errors generated by nodes and clear them
-	{
+
+	string clearErrors() {
 		return root->getErrors(true);
 	};
-	vector<string> getExpression() const;				//Return expression used to create the tree
+
+	vector<string> getExpression() const				//Return expression used to create the tree
+	{
+		vector<string> accumulator;
+		vector<string> expression = root->inOrderWalk(&accumulator);
+		return expression;
+	};
+
+	vector<string> getVars() const
+	{
+		vector<string> accumulator;
+		vector<string> vars = root->getVars(&accumulator);
+		return vars;
+	}
 	
-	vector<string> getVars() const;					//Print all variables used in the expression
-	
-	double calculate(vector<double> values) const;			//Calculate expression using variable values
-	
+	double calculate(vector<double> values) const			//Calculate expression using variable values
+	{
+		vector<string> accumulator;
+		vector<string> vars = root->getVars(&accumulator);
+		return CNode::calculate(root, vars, values);
+	};
+
 	bool isInitialized() const { return root != NULL; }; //Check if tree is initialized
 
-	~CTree(); //Destructor
+	~CTree() { root->deleteTree(); }
+
 };
 
+#endif
