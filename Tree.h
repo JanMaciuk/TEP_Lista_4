@@ -10,6 +10,7 @@ const int IDconstant = 3;
 const int IDvariable = 4;
 const char minDigit = '0';
 const char maxDigit = '9';
+const char decimalSeparator = '.';
 const char minSmalLetter = 'a';
 const char maxSmallLetter = 'z';
 const char minCapitalLetter = 'A';
@@ -22,7 +23,7 @@ const int baseNumber = 10;
 const int maxChildrenCount = 2;
 
 
-class CNode
+template <typename T> class CNode
 {
 
 private:
@@ -34,14 +35,14 @@ private:
 	static int getType(std::string* value);			// return type of a string (operation, constant or variable), if its a variable, turns it into a valid variable name
 	static bool isNumber(const std::string value);  // return true if string is a number
 	static std::string validateVariableName(const std::string value);	// turn string into a valid variable name
-	static int strToInt(const std::string value, bool* overflow);		// convert string to int
+	static double strToNumber(const std::string value, bool* overflow);		// convert string to int
 
 public:
 
-	CNode(const std::vector<std::string> expression, CNode* parent, int* index);					//Constructor from a string at index (calls next constructor)
-	std::vector<std::string> inOrderWalk(std::vector<std::string>* accumulator) const;  // return expression used to create the tree
-	std::vector<std::string> getVars(std::vector<std::string>* accumulator) const;		// return expression used to create the tree
-	static double calculate(CNode* node, const std::vector<std::string> vars, const std::vector<double> values); // calculate expression using variables and values
+	CNode(const std::vector<std::string> expression, CNode<T>* parent, int* index);			//Constructor from a string at index (calls next constructor)
+	std::vector<std::string> inOrderWalk(std::vector<std::string>* accumulator) const;		// return expression used to create the tree
+	std::vector<std::string> getVars(std::vector<std::string>* accumulator) const;			// return expression used to create the tree
+	static double calculate(CNode<T>* node, const std::vector<std::string> vars, const std::vector<double> values); // calculate expression using variables and values
 	void deleteTree();							// delete all children and itself
 	static void logError(std::string msg);		// add error message
 	static void logErrorSpace(std::string msg); // add error message terminated with a space instead of a newline
@@ -49,11 +50,11 @@ public:
 };
 
 
-class CTree
+template <typename T> class CTree
 {
 
 private:
-	CNode* root;
+	CNode<T>* root;
 
 public:
 	CTree();													//Default constructor - empty tree

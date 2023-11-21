@@ -3,10 +3,10 @@
 #include "interface.h"
 
 //CTree:
-CTree::CTree(const std::vector<std::string> expression)
+template <typename T> CTree<T>::CTree(const std::vector<std::string> expression)
 {
 	int index = 1;
-	root = new CNode(expression, NULL, &index);
+	root = new CNode<T>(expression, NULL, &index);
 	// if position is not at the end of vector, print notification and ommit leftovers
 	if (index < expression.size())
 	{
@@ -19,23 +19,23 @@ CTree::CTree(const std::vector<std::string> expression)
 	}
 }
 
-CTree::CTree(const CTree& otherInstance) // copy constructor
+template <typename T> CTree<T>::CTree(const CTree& otherInstance) // copy constructor
 {
 	std::vector<std::string> expression = otherInstance.getExpression();
 	expression.insert(expression.begin(), command_enterTree);
 	int index = 1;
-	root = new CNode(expression, NULL, &index);
+	root = new CNode<T>(expression, NULL, &index);
 	// No need to check for leftovers, original tree must be valid
 }
 
-CTree::CTree() // default constructor
+template <typename T> CTree<T>::CTree() // default constructor
 {
 	root = NULL;
 }
 
 
 
-std::vector<std::string> CTree::getVars() const
+template <typename T> std::vector<std::string> CTree<T>::getVars() const
 {
 	std::vector<std::string> accumulator;
 	std::vector<std::string> vars = root->getVars(&accumulator);
@@ -43,29 +43,29 @@ std::vector<std::string> CTree::getVars() const
 
 }
 
-double CTree::calculate(std::vector<double> values) const
+template <typename T> double CTree<T>::calculate(std::vector<double> values) const
 {
 	std::vector<std::string> accumulator;
 	std::vector<std::string> vars = root->getVars(&accumulator);
-	return CNode::calculate(root, vars, values);
+	return CNode<T>::calculate(root, vars, values);
 }
 
-std::vector<std::string> CTree::getExpression() const
+template <typename T> std::vector<std::string> CTree<T>::getExpression() const
 {
 	std::vector<std::string> accumulator;
 	std::vector<std::string> expression = root->inOrderWalk(&accumulator);
 	return expression;
 }
 
-std::string CTree::getErrors() const {
+template <typename T> std::string CTree<T>::getErrors() const {
 	return root->getErrors(false);
 }
-std::string CTree::clearErrors() {
+template <typename T> std::string CTree<T>::clearErrors() {
 	return root->getErrors(true);
 }
 
 
-void CTree::operator=(const CTree& otherInstance)
+template <typename T> void CTree<T>::operator=(const CTree& otherInstance)
 {
 	// set current tree to a copy of another tree
 	// if current tree is not empty, delete it
@@ -74,10 +74,10 @@ void CTree::operator=(const CTree& otherInstance)
 	std::vector<std::string> expression = otherInstance.getExpression();
 	expression.insert(expression.begin(), command_enterTree);
 	int index = 1;
-	this->root = new CNode(expression, NULL, &index);
+	this->root = new CNode<T>(expression, NULL, &index);
 }
 
-CTree CTree::operator+(const CTree& otherInstance) const
+template <typename T> CTree<T> CTree<T>::operator+(const CTree& otherInstance) const
 {
 	// join two trees using operator+
 	// if both trees are empty, return empty tree
@@ -106,12 +106,12 @@ CTree CTree::operator+(const CTree& otherInstance) const
 	}
 }
 
-CTree::~CTree() { root->deleteTree(); }
+template <typename T> CTree<T>::~CTree() { root->deleteTree(); }
 
 
 
 //CNode::
-CNode::CNode(const std::vector<std::string> expression, CNode* parentNode, int* currentIndex)
+template <typename T> CNode<T>::CNode(const std::vector<std::string> expression, CNode<T>* parentNode, int* currentIndex)
 {
 	parent = parentNode;
 	string val = defaultNodeValue;
@@ -131,20 +131,20 @@ CNode::CNode(const std::vector<std::string> expression, CNode* parentNode, int* 
 	}
 	if (type == 1) // if operation with 1 child, create left child only
 	{
-		children[0] = new CNode(expression, this, currentIndex);
+		children[0] = new CNode<T>(expression, this, currentIndex);
 		children[1] = NULL;
 	}
 	else if (type == 2) // if operation with 2 children, create left and right children 
 	{
-		children[0] = new CNode(expression, this, currentIndex);
-		children[1] = new CNode(expression, this, currentIndex);
+		children[0] = new CNode<T>(expression, this, currentIndex);
+		children[1] = new CNode<T>(expression, this, currentIndex);
 	}
 
 
 }
 
 
-std::vector<std::string> CNode::inOrderWalk(std::vector<std::string>* accumulator) const
+template <typename T> std::vector<std::string> CNode<T>::inOrderWalk(std::vector<std::string>* accumulator) const
 {
 	if (this == NULL) { return *accumulator; }
 	accumulator->push_back(value);
@@ -153,22 +153,22 @@ std::vector<std::string> CNode::inOrderWalk(std::vector<std::string>* accumulato
 	return *accumulator;
 }
 
-void CNode::logError(const std::string message)
+template <typename T> void CNode<T>::logError(const std::string message)
 {
 	errMsg += message + endLine;
 }
-void CNode::logErrorSpace(const std::string message)
+template <typename T> void CNode<T>::logErrorSpace(const std::string message)
 {
 	errMsg += message + space;
 }
-std::string CNode::getErrors(bool clear)
+template <typename T> std::string CNode<T>::getErrors(bool clear)
 {
 	std::string result = errMsg;
 	if (clear) errMsg = emptyString;
 	return result;
 }
 
-int CNode::getType(std::string* value)
+template <typename T> int CNode<T>::getType(std::string* value)
 {
 	// 1 - operation with 1 child, 2 - operation with 2 children, 3 - constant, 4 - variable (name is made valid)
 	if (std::find(operations1child.begin(), operations1child.end(), *value) != operations1child.end()) { return 1; } // if value is in the list of operations with 1 child
@@ -197,7 +197,8 @@ int CNode::getType(std::string* value)
 
 }
 
-bool CNode::isNumber(const std::string value)
+
+template <typename T> bool CNode<T>::isNumber(const std::string value) // version for integers
 {
 	for (int i = 0; i < value.length(); i++)
 	{ // if any character is not withing ascii range of digits, return false
@@ -205,9 +206,24 @@ bool CNode::isNumber(const std::string value)
 	}
 	return true;
 }
+template <> bool CNode<double>::isNumber(const std::string value) // version for doubles
+{
+	bool separatorFound = false;
+	for (int i = 0; i < value.length(); i++)
+	{	// if any character is not withing ascii range of digits,
+		if ((value[i] < minDigit || value[i] > maxDigit)) 
+		{ 
+			// if found one dot, ignore it (still a number)
+			if (value[i] == decimalSeparator && !separatorFound && (i < value.length() - 1)) { separatorFound = true; }
+			else return false;
+		}
+	}
+	return true;
+}
 
-std::string CNode::errMsg = emptyString;
-std::string CNode::validateVariableName(const std::string value)
+
+template <typename T> std::string CNode<T>::errMsg = emptyString;
+template <typename T> std::string CNode<T>::validateVariableName(const std::string value)
 {
 	// turn string into a valid variable name, requirements to be valid:
 	// cannot be empty
@@ -239,7 +255,7 @@ std::string CNode::validateVariableName(const std::string value)
 	return result;
 }
 
-std::vector<std::string> CNode::getVars(std::vector<std::string>* accumulator) const
+template <typename T> std::vector<std::string> CNode<T>::getVars(std::vector<std::string>* accumulator) const
 {
 	if (this == NULL) { return *accumulator; }
 	if ((this->type == IDvariable) && (std::find((*accumulator).begin(), (*accumulator).end(), (this->value)) == (*accumulator).end()))
@@ -252,17 +268,17 @@ std::vector<std::string> CNode::getVars(std::vector<std::string>* accumulator) c
 }
 
 
-double CNode::calculate(CNode* node, const std::vector<std::string> vars, const std::vector<double> values)
+template <typename T> double CNode<T>::calculate(CNode<T>* node, const std::vector<std::string> vars, const std::vector<double> values)
 {
 	if (node == NULL) { return 0; }
 
 	else if (node->type == IDconstant)  // if its a constant, simply return its value
 	{
 		bool overflow;
-		int value = strToInt(node->value, &overflow);
+		double value = strToNumber(node->value, &overflow);
 		if (overflow)
 		{
-			value = strToInt(defaultNodeValue, &overflow);
+			value = strToNumber(defaultNodeValue, &overflow);
 			logError(notification_overflow + defaultNodeValue);
 		}
 		return value;
@@ -285,7 +301,7 @@ double CNode::calculate(CNode* node, const std::vector<std::string> vars, const 
 			{
 				logError(notification_overflow + defaultNodeValue);
 				bool overflow;
-				return strToInt(defaultNodeValue, &overflow);
+				return strToNumber(defaultNodeValue, &overflow);
 			}
 			return leftResult + rightResult;
 		}
@@ -296,7 +312,7 @@ double CNode::calculate(CNode* node, const std::vector<std::string> vars, const 
 			{
 				logError(notification_overflow + defaultNodeValue);
 				bool overflow;
-				return strToInt(defaultNodeValue, &overflow);
+				return strToNumber(defaultNodeValue, &overflow);
 			}
 			return leftResult * rightResult;
 		}
@@ -313,26 +329,43 @@ double CNode::calculate(CNode* node, const std::vector<std::string> vars, const 
 	return 0;
 }
 
-int CNode::strToInt(const std::string value, bool* overflow)
+template <typename T> double CNode<T>::strToNumber(const std::string value, bool* overflow)
 {
 	// convert string to int
-	// if overflow, set overflow to true
+	// of overflow, set overflow to true
 	// value must be a number (checked before call, function is private)
 	*overflow = false;
-	int result = 0;
-	for (int i = 0; i < value.length(); i++)
-	{
-		result *= baseNumber;
-		result += (value[i] - minDigit);
-		if (result < 0) { *overflow = true; }
+	double result = 0;
+	bool isInt = true;
+	int reduceValueAfterSeparator = 1;
+	for (int i = 0; i < value.length(); i++) {
+		if (value[i] == decimalSeparator)
+		{
+			isInt = false;
+			i++;
+		}
+		if (isInt) 
+		{ 
+			result *= baseNumber;
+			result += (value[i] - minDigit);
+		}
+		else 
+		{
+			result += double(value[i] - minDigit) /(baseNumber*reduceValueAfterSeparator);
+			reduceValueAfterSeparator *= baseNumber;
+		}
 
+		if (result < 0) {
+			*overflow = true;
+		}
 	}
+
 	return result;
 }
 
 
 
-void CNode::deleteTree() // delete the called node and all its descendants
+template <typename T> void CNode<T>::deleteTree() // delete the called node and all its descendants
 {
 	if (this == NULL) { return; }
 	for (int i = 0; i < maxChildrenCount; i++)
@@ -342,3 +375,11 @@ void CNode::deleteTree() // delete the called node and all its descendants
 	delete this;
 }
 
+
+//Avoid linker errors by using explicit instantations:
+template class CTree<int>;
+template class CNode<int>;
+template class CTree<double>;
+template class CNode<double>;
+//template class CTree<string>;
+//template class CNode<string>;

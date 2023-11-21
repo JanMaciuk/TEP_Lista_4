@@ -7,9 +7,9 @@ template <typename T> void interface<T>::run()
 	interface<T>::print(chooseType);
 	string consoleInput;
 	std::getline(cin, consoleInput);
-	if (consoleInput == "1") {
-		bool running = true;
-		CTree* tree = NULL;
+	bool running = true;
+	if (consoleInput == command_typeInt) {
+		CTree<int>* tree = NULL;
 		while (running)
 		{
 			vector<string> command = interface<int>::getUserInput();
@@ -17,7 +17,17 @@ template <typename T> void interface<T>::run()
 
 		}
 	}
-	//TODO: add other types
+	if (consoleInput == command_typeDouble)
+	{
+		CTree<double>* tree = NULL;
+		while (running)
+		{
+			vector<string> command = interface<double>::getUserInput();
+			running = interface<double>::handleCommand(command, &tree);
+
+		}
+	}
+	//TODO: add string
 
 }
 
@@ -31,7 +41,7 @@ template <typename T> vector<string> interface<T>::getUserInput() {
 
 }
 
-template <> void interface<int>::print(const vector<string>& message) {
+template <typename T> void interface<T>::print(const vector<string>& message) {
 	for (int i = 0; i < message.size(); i++)
 	{
 		interface<int>::printSpace(message[i]);
@@ -39,7 +49,7 @@ template <> void interface<int>::print(const vector<string>& message) {
 	interface<int>::print(""); // newline
 }
 
-template <> vector<string> interface<int>::splitBySpace(const string& input) {
+template <typename T> vector<string> interface<T>::splitBySpace(const string& input) {
 	vector<string> result;
 	string currentWord;
 	for (int i = 0; i < input.length(); i++)
@@ -56,7 +66,7 @@ template <> vector<string> interface<int>::splitBySpace(const string& input) {
 	return result;
 }
 
-template <> bool interface<int>::handleCommand(const vector<string>& command, CTree** tree)
+template <typename T> bool interface<T>::handleCommand(const vector<string>& command, CTree<T>** tree) // TODO: add other types
 {
 	//call an appropriate method based on the command
 	//return false if exiting the program
@@ -77,7 +87,7 @@ template <> bool interface<int>::handleCommand(const vector<string>& command, CT
 		{
 			delete* tree;
 		}
-		*tree = new CTree(command);
+		*tree = new CTree<T>(command);
 		interface<int>::print((*tree)->clearErrors());
 		interface<int>::print(notification_printingExpression);
 		print((*tree)->getExpression());
@@ -131,7 +141,7 @@ template <> bool interface<int>::handleCommand(const vector<string>& command, CT
 	else if (commandName == command_addTree)
 	{
 		if (!treeIsInitialized(tree)) { interface<int>::print(notification_noTree); return true; }
-		(**tree) = (**tree) + CTree(command);
+		(**tree) = (**tree) + CTree<T>(command);
 		interface<int>::print((*tree)->clearErrors());
 		interface<int>::print(notification_printingExpression);
 		print((*tree)->getExpression());
@@ -142,7 +152,7 @@ template <> bool interface<int>::handleCommand(const vector<string>& command, CT
 
 }
 
-template <> bool interface<int>::treeIsInitialized(CTree** tree)
+template <typename T> bool interface<T>::treeIsInitialized(CTree<T>** tree)
 {
 	if (*tree == NULL || !(*tree)->isInitialized()) { return false; }
 	else { return true; }
@@ -150,5 +160,5 @@ template <> bool interface<int>::treeIsInitialized(CTree** tree)
 
 //Avoid linker errors by using explicit instantations:
 template class interface<int>;
-//template class interface<double>;
+template class interface<double>;
 //template class interface<string>;

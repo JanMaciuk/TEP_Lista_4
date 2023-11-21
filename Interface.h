@@ -12,9 +12,12 @@ const string command_listVars = "vars";
 const string command_printTree = "print";
 const string command_calculate = "comp";
 const string command_addTree = "join";
+const string command_typeInt = "1";
+const string command_typeDouble = "2";
+const string command_typeString = "3";
 const string defaultVarName = "x";
 const char char_space = ' ';
-const string chooseType = "Choose type:\n1. int\n2. double\n3. string\n any other input to end the program";
+const string chooseType = "Choose type:\n1. int\n2. double\n3. string\nor any other input to end the program";
 
 const string notification_wrongCommand = "Wrong command, try again";
 const string notification_exit = "Terminating the program";
@@ -43,7 +46,7 @@ public:
 	static inline void printSpace(const string& message) { cout << message << " "; }; // Print to console
 	static void print(const vector<string>& message); // Print vector of strings to console
 	static vector<string> splitBySpace(const string& input); // Split string into a vector
-	static bool handleCommand(const vector<string>& command, CTree** tree); // Call methods based on user command, false if exit
-	static bool treeIsInitialized(CTree** tree); // Check if tree is initialized
+	static bool handleCommand(const vector<string>& command, CTree<T>** tree); // Call methods based on user command, false if exit
+	static bool treeIsInitialized(CTree<T>** tree); // Check if tree is initialized
 	static void run();
 };

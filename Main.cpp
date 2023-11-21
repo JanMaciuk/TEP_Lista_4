@@ -4,14 +4,6 @@
 
 int main()
 {
-    std::cout << "Hello World!\n";
-    bool running = true;
-    CTree* tree = NULL;
-    while (running)
-    {
-        vector<string> command = interface<int>::getUserInput();
-        running = interface<int>::handleCommand(command, &tree);
-
-    }
+    interface<int>::run();
     return 0;
 }
