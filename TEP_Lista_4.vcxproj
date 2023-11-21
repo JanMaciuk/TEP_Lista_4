@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="interface.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Tree.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Interface.h" />
