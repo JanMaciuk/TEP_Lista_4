@@ -27,7 +27,16 @@ template <typename T> void interface<T>::run()
 
 		}
 	}
-	//TODO: add string
+	if (consoleInput == command_typeString)
+	{
+		CTree<string>* tree = NULL;
+		while (running)
+		{
+			vector<string> command = interface<string>::getUserInput();
+			running = interface<string>::handleCommand(command, &tree);
+
+		}
+	}
 
 }
 
@@ -125,15 +134,7 @@ template <typename T> bool interface<T>::handleCommand(const vector<string>& com
 	else if (commandName == command_calculate)
 	{
 		if (!treeIsInitialized(tree)) { interface<int>::print(notification_noTree); return true; }
-		std::vector<double> values;
-		for (int i = 1; i < command.size(); i++)
-		{
-			double value = std::atof(command[i].c_str()); // convert string to double using atof (c++98 standard)
-			if (value > 0.0) { values.push_back(value); } // only add valid positive doubles
-			else { interface<int>::print(command[i] + notification_invalidVariableValue); return true; }
-		}
-		if (values.size() != (*tree)->getVars().size()) { interface<int>::print(notification_invalidVariablesNumber); return true; }
-		interface<int>::print((*tree)->calculate(values));
+		interface<int>::print((*tree)->calculate(command));
 		interface<int>::print((*tree)->clearErrors());
 		return true;
 	}
@@ -161,4 +162,4 @@ template <typename T> bool interface<T>::treeIsInitialized(CTree<T>** tree)
 //Avoid linker errors by using explicit instantations:
 template class interface<int>;
 template class interface<double>;
-//template class interface<string>;
+template class interface<string>;

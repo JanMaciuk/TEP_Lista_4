@@ -3,7 +3,7 @@
 #include "interface.h"
 
 //CTree:
-template <typename T> CTree<T>::CTree(const std::vector<std::string> expression)
+template <typename T> CTree<T>::CTree(const vector<string> expression)
 {
 	int index = 1;
 	root = new CNode<T>(expression, NULL, &index);
@@ -21,7 +21,7 @@ template <typename T> CTree<T>::CTree(const std::vector<std::string> expression)
 
 template <typename T> CTree<T>::CTree(const CTree& otherInstance) // copy constructor
 {
-	std::vector<std::string> expression = otherInstance.getExpression();
+	vector<string> expression = otherInstance.getExpression();
 	expression.insert(expression.begin(), command_enterTree);
 	int index = 1;
 	root = new CNode<T>(expression, NULL, &index);
@@ -35,32 +35,53 @@ template <typename T> CTree<T>::CTree() // default constructor
 
 
 
-template <typename T> std::vector<std::string> CTree<T>::getVars() const
+template <typename T> vector<string> CTree<T>::getVars() const
 {
-	std::vector<std::string> accumulator;
-	std::vector<std::string> vars = root->getVars(&accumulator);
+	vector<string> accumulator;
+	vector<string> vars = root->getVars(&accumulator);
 	return vars;
 
 }
 
-template <typename T> double CTree<T>::calculate(std::vector<double> values) const
+template <typename T> T CTree<T>::calculate(vector<string> command) const
 {
-	std::vector<std::string> accumulator;
-	std::vector<std::string> vars = root->getVars(&accumulator);
+	vector<string> accumulator;
+	vector<string> vars = root->getVars(&accumulator);
+	vector<T> values;
+	for (int i = 1; i < command.size(); i++)
+	{
+		double value = atof(command[i].c_str()); // convert string to double using atof (c++98 standard)
+		if (value > 0.0) { values.push_back(value); } // only add valid positive doubles
+		else { root->logError(command[i] + notification_invalidVariableValue); return 0; }
+	}
+	if (values.size() != getVars().size()) { root->logError(notification_invalidVariablesNumber); return 0; }
 	return CNode<T>::calculate(root, vars, values);
 }
 
-template <typename T> std::vector<std::string> CTree<T>::getExpression() const
+template <> string CTree<string>::calculate(vector<string> command) const {
+	vector<string> accumulator;
+	vector<string> vars = root->getVars(&accumulator);
+	vector<string> values;
+	for (int i = 1; i < command.size(); i++)
+	{
+		values.push_back(command[i]);
+	}
+	if (values.size() != getVars().size()) { root->logError(notification_invalidVariablesNumber); return emptyString; }
+	return CNode<string>::calculate(root, vars, values);
+
+}
+
+template <typename T> vector<string> CTree<T>::getExpression() const
 {
-	std::vector<std::string> accumulator;
-	std::vector<std::string> expression = root->inOrderWalk(&accumulator);
+	vector<string> accumulator;
+	vector<string> expression = root->inOrderWalk(&accumulator);
 	return expression;
 }
 
-template <typename T> std::string CTree<T>::getErrors() const {
+template <typename T> string CTree<T>::getErrors() const {
 	return root->getErrors(false);
 }
-template <typename T> std::string CTree<T>::clearErrors() {
+template <typename T> string CTree<T>::clearErrors() {
 	return root->getErrors(true);
 }
 
@@ -71,7 +92,7 @@ template <typename T> void CTree<T>::operator=(const CTree& otherInstance)
 	// if current tree is not empty, delete it
 	if (this->root != NULL) { this->root->deleteTree(); }
 	// create a new tree with the same expression as the other tree
-	std::vector<std::string> expression = otherInstance.getExpression();
+	vector<string> expression = otherInstance.getExpression();
 	expression.insert(expression.begin(), command_enterTree);
 	int index = 1;
 	this->root = new CNode<T>(expression, NULL, &index);
@@ -92,8 +113,8 @@ template <typename T> CTree<T> CTree<T>::operator+(const CTree& otherInstance) c
 		// remove last element from the first expression (it is a leaf)
 		// add the second expression to the first one
 		// create a new tree from the new expression
-		std::vector<std::string> thisExpression = this->getExpression();
-		std::vector<std::string> otherExpression = otherInstance.getExpression();
+		vector<string> thisExpression = this->getExpression();
+		vector<string> otherExpression = otherInstance.getExpression();
 		thisExpression.pop_back();
 		thisExpression.insert(thisExpression.begin(), command_enterTree); // add first placeholder to expression
 		for (int i = 0; i < otherExpression.size(); i++)
@@ -111,7 +132,7 @@ template <typename T> CTree<T>::~CTree() { root->deleteTree(); }
 
 
 //CNode::
-template <typename T> CNode<T>::CNode(const std::vector<std::string> expression, CNode<T>* parentNode, int* currentIndex)
+template <typename T> CNode<T>::CNode(const vector<string> expression, CNode<T>* parentNode, int* currentIndex)
 {
 	parent = parentNode;
 	string val = defaultNodeValue;
@@ -144,7 +165,7 @@ template <typename T> CNode<T>::CNode(const std::vector<std::string> expression,
 }
 
 
-template <typename T> std::vector<std::string> CNode<T>::inOrderWalk(std::vector<std::string>* accumulator) const
+template <typename T> vector<string> CNode<T>::inOrderWalk(vector<string>* accumulator) const
 {
 	if (this == NULL) { return *accumulator; }
 	accumulator->push_back(value);
@@ -153,33 +174,33 @@ template <typename T> std::vector<std::string> CNode<T>::inOrderWalk(std::vector
 	return *accumulator;
 }
 
-template <typename T> void CNode<T>::logError(const std::string message)
+template <typename T> void CNode<T>::logError(const string message)
 {
 	errMsg += message + endLine;
 }
-template <typename T> void CNode<T>::logErrorSpace(const std::string message)
+template <typename T> void CNode<T>::logErrorSpace(const string message)
 {
 	errMsg += message + space;
 }
-template <typename T> std::string CNode<T>::getErrors(bool clear)
+template <typename T> string CNode<T>::getErrors(bool clear)
 {
-	std::string result = errMsg;
+	string result = errMsg;
 	if (clear) errMsg = emptyString;
 	return result;
 }
 
-template <typename T> int CNode<T>::getType(std::string* value)
+template <typename T> int CNode<T>::getType(string* value)
 {
 	// 1 - operation with 1 child, 2 - operation with 2 children, 3 - constant, 4 - variable (name is made valid)
-	if (std::find(operations1child.begin(), operations1child.end(), *value) != operations1child.end()) { return 1; } // if value is in the list of operations with 1 child
-	else if (std::find(operations2children.begin(), operations2children.end(), *value) != operations2children.end()) { return 2; } // if value is in the list of operators with 2 children
+	if (find(operations1child.begin(), operations1child.end(), *value) != operations1child.end()) { return 1; } // if value is in the list of operations with 1 child
+	else if (find(operations2children.begin(), operations2children.end(), *value) != operations2children.end()) { return 2; } // if value is in the list of operators with 2 children
 	else if (isNumber(*value)) // if value is a number/constant return 3
 	{
 		//ensure the number is not zero
-		bool isZero = false;
+		bool isZero = true;
 		for (int i = 0; i < value->length(); i++)
 		{
-			if ((*value)[i] == minDigit) { isZero = true; }
+			if ((*value)[i] != minDigit && (*value)[i] != decimalSeparator) { isZero = false; }
 		}
 		if (isZero)
 		{
@@ -198,7 +219,7 @@ template <typename T> int CNode<T>::getType(std::string* value)
 }
 
 
-template <typename T> bool CNode<T>::isNumber(const std::string value) // version for integers
+template <typename T> bool CNode<T>::isNumber(const string value)	// version for integers
 {
 	for (int i = 0; i < value.length(); i++)
 	{ // if any character is not withing ascii range of digits, return false
@@ -206,7 +227,7 @@ template <typename T> bool CNode<T>::isNumber(const std::string value) // versio
 	}
 	return true;
 }
-template <> bool CNode<double>::isNumber(const std::string value) // version for doubles
+template <> bool CNode<double>::isNumber(const string value)		// version for doubles
 {
 	bool separatorFound = false;
 	for (int i = 0; i < value.length(); i++)
@@ -220,17 +241,22 @@ template <> bool CNode<double>::isNumber(const std::string value) // version for
 	}
 	return true;
 }
+template <> bool CNode<string>::isNumber(const string value)	// version for strings
+{
+	// check if first and last char are "
+	return (value[0] == quotationMark && value[value.length() - 1] == quotationMark);
+}
 
 
-template <typename T> std::string CNode<T>::errMsg = emptyString;
-template <typename T> std::string CNode<T>::validateVariableName(const std::string value)
+template <typename T> string CNode<T>::errMsg = emptyString;
+template <typename T> string CNode<T>::validateVariableName(const string value)
 {
 	// turn string into a valid variable name, requirements to be valid:
 	// cannot be empty
 	// cannot contain only numbers
 	// can only contain letters and numbers
 
-	std::string result = emptyString;
+	string result = emptyString;
 	for (int i = 0; i < value.length(); i++)
 	{
 		if ((value[i] >= minDigit && value[i] <= maxDigit) || (value[i] >= minSmalLetter && value[i] <= maxSmallLetter) || (value[i] >= minCapitalLetter && value[i] <= maxCapitalLetter))
@@ -255,10 +281,10 @@ template <typename T> std::string CNode<T>::validateVariableName(const std::stri
 	return result;
 }
 
-template <typename T> std::vector<std::string> CNode<T>::getVars(std::vector<std::string>* accumulator) const
+template <typename T> vector<string> CNode<T>::getVars(vector<string>* accumulator) const
 {
 	if (this == NULL) { return *accumulator; }
-	if ((this->type == IDvariable) && (std::find((*accumulator).begin(), (*accumulator).end(), (this->value)) == (*accumulator).end()))
+	if ((this->type == IDvariable) && (find((*accumulator).begin(), (*accumulator).end(), (this->value)) == (*accumulator).end()))
 	{ // if node is a variable and is not in the accumulator, add it
 		accumulator->push_back(this->value);
 	} // then walk throught the rest of the tree
@@ -268,7 +294,102 @@ template <typename T> std::vector<std::string> CNode<T>::getVars(std::vector<std
 }
 
 
-template <typename T> double CNode<T>::calculate(CNode<T>* node, const std::vector<std::string> vars, const std::vector<double> values)
+template <> string CNode<string>::calculate(CNode<string>* node, const vector<string> vars, const vector<string> values) {
+	if (node == NULL) { return emptyString; }
+
+	else if (node->type == IDconstant) { return node->value; }
+	
+	else if (node->type == IDvariable) // if its a variable, find its value in values vector
+	{
+		int index = find(vars.begin(), vars.end(), node->value) - vars.begin(); // variable must be in the vars vector, so index will be valid (length is checked before)
+		return values[index];
+	}
+
+	else if (node->type == 2) // if its a normal operator, calculate the values
+	{
+		string leftResult = calculate(node->children[0], vars, values);
+		string rightResult = calculate(node->children[1], vars, values);
+
+		if (node->value == operations2children[0]) // addition
+		{ 
+			return leftResult + rightResult; 
+		}
+
+		else if (node->value == operations2children[1]) // subtraction
+		{ 
+			if (rightResult[0] == quotationMark) { rightResult = rightResult.substr(1, rightResult.length() - 2); } // remove quotation marks from searched string
+			if (rightResult == emptyString) { return leftResult; }
+			int position = leftResult.rfind(rightResult);
+			if (position != string::npos) { return leftResult.erase(position, rightResult.length()); }
+			else return leftResult;
+		} 
+
+		else if (node->value == operations2children[multiplicationIndex]) // multiplication
+		{ 
+			if (rightResult[0] == quotationMark) { rightResult = rightResult.substr(1, rightResult.length() - 2); } // remove quotation marks from searched string
+			if (rightResult == emptyString) { return leftResult; }
+			// find all occurences of first character of rightResult in leftResult:
+			vector<int> positions;
+			for (int i = 0; i < leftResult.length(); i++)
+			{
+				if (leftResult[i] == rightResult[0]) { positions.push_back(i); }
+			}
+			if (positions.size() == 0) { return leftResult; }
+			//append right string to each position:
+			string result = leftResult.substr(0, positions[0]); // first part of the string before first position to add
+			for (int i = 0; i < positions.size(); i++)
+			{
+				result += rightResult; // add right string
+				if(i < positions.size() - 1)
+					result += leftResult.substr(positions[i] + 1, positions[i + 1] - (positions[i]+1)); // add part of the string between current and next position
+				else
+				result += leftResult.substr(positions[i] + 1, leftResult.length() - 1);
+			}
+			return result;
+		}
+		else if (node->value == operations2children[divisionIndex]) //division
+		{ 
+			if (rightResult[0] == quotationMark) { rightResult = rightResult.substr(1, rightResult.length() - 2); } // remove quotation marks from searched string
+			if (rightResult == emptyString) { return leftResult; }
+			//find all occurences of rightResult in leftResult:
+			vector<int> positions;
+			for (int i = 0; i < leftResult.length(); i++)
+			{
+				if (leftResult[i] == rightResult[0]) 
+				{ 
+					bool areIdentical = true;
+					for (int j = 0; j < rightResult.length(); j++)
+					{
+						if (leftResult[i + j] != rightResult[j]) { areIdentical = false; }
+						if (j == rightResult.length() - 1 && areIdentical) { positions.push_back(i); }
+					}
+				}
+			}
+			if (positions.size() == 0) { return leftResult; }
+			//remove all occurences of rightResult from leftResult:
+			string result = leftResult.substr(0, positions[0]+1); // first part of the string before first position to substract
+			for (int i = 0; i < positions.size(); i++)
+			{
+				if (i < positions.size() - 1)
+					result += leftResult.substr(positions[i] + rightResult.length(), positions[i + 1]+1 - (positions[i] + rightResult.length())); // add part of the string between current and next position
+				
+				else
+					result += leftResult.substr(positions[i] + rightResult.length(), leftResult.length() - 1);
+			}
+			return result;
+
+		} 
+	}
+
+	else if (node->type == 1)
+	{
+		string childResult = calculate(node->children[0], vars, values);
+		if (node->value == operations1child[0] || node->value == operations1child[1]) { return node->value + openingBracket + childResult + closingBracket; }
+	}
+	return emptyString;
+}
+
+template <typename T> T CNode<T>::calculate(CNode<T>* node, const vector<string> vars, const vector<T> values)
 {
 	if (node == NULL) { return 0; }
 
@@ -286,7 +407,7 @@ template <typename T> double CNode<T>::calculate(CNode<T>* node, const std::vect
 
 	else if (node->type == IDvariable) // if its a variable, find its value in values vector
 	{
-		int index = std::find(vars.begin(), vars.end(), node->value) - vars.begin(); // variable must be in the vars vector, so index will be valid (length is checked before)
+		int index = find(vars.begin(), vars.end(), node->value) - vars.begin(); // variable must be in the vars vector, so index will be valid (length is checked before)
 		return values[index];
 	}
 
@@ -329,7 +450,12 @@ template <typename T> double CNode<T>::calculate(CNode<T>* node, const std::vect
 	return 0;
 }
 
-template <typename T> double CNode<T>::strToNumber(const std::string value, bool* overflow)
+
+
+
+
+
+template <typename T> double CNode<T>::strToNumber(const string value, bool* overflow)
 {
 	// convert string to int
 	// of overflow, set overflow to true
@@ -381,5 +507,5 @@ template class CTree<int>;
 template class CNode<int>;
 template class CTree<double>;
 template class CNode<double>;
-//template class CTree<string>;
-//template class CNode<string>;
+template class CTree<string>;
+template class CNode<string>;
