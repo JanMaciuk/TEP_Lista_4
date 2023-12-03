@@ -437,7 +437,11 @@ template <typename T> T CNode<T>::calculate(CNode<T>* node, const vector<string>
 			}
 			return leftResult * rightResult;
 		}
-		else if (node->value == operations2children[divisionIndex]) { return double(leftResult) / double(rightResult); }
+		else if (node->value == operations2children[divisionIndex]) 
+		{ 
+			if (rightResult==0) { logError(notification_divisionByZero); return rightResult; }
+			else return double(leftResult) / double(rightResult); 
+		}
 	}
 
 	else if (node->type == 1)

@@ -35,6 +35,7 @@ const string notification_invalidVariablesNumber = "Wrong amount of variable val
 const string notification_invalidVariableValue = " is not a valid value for a variable, a positive number required ";
 const string notification_zeroNotAllowed = "entered numbers must be positive, zero is not supported, replacing with default value: ";
 const string notification_overflow = "Integer overflow occured, use smaller values and consider result invalid, replaced by default: ";
+const string notification_divisionByZero = "Division by zero occured during calculation, check expression and consider result invalid";
 
 
 template <typename T> class interface
